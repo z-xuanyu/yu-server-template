@@ -1,0 +1,15 @@
+model SysDept {
+  id        Int          @id @default(autoincrement())
+  name      String
+  parentId  Int?
+  sort      Int          @default(0)
+  status    Int          @default(1)
+  remark    String
+  parent    SysDept?     @relation("SysDeptParent", fields: [parentId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  children  SysDept[]    @relation("SysDeptParent")
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+  accounts  SysAccount[]
+
+  @@map("sys_dept")
+}

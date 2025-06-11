@@ -8,16 +8,17 @@ import { APP_GUARD } from '@nestjs/core';
 import { AuthGuard } from './auth/auth.guard';
 import { RoleModule } from './role/role.module';
 import { MenuModule } from './menu/menu.module';
+import { DeptModule } from './dept/dept.module';
 
 @Module({
-  imports: [CommonModule, AuthModule, AccountModule, RoleModule, MenuModule],
+  imports: [CommonModule, AuthModule, AccountModule, RoleModule, MenuModule, DeptModule],
   controllers: [AdminController],
   providers: [
     AdminService,
-    {
-      provide: APP_GUARD,
-      useClass: AuthGuard,
-    }
+    // {
+    //   provide: APP_GUARD,
+    //   useClass: AuthGuard,
+    // }
   ],
 })
 export class AdminModule { }

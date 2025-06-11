@@ -1,0 +1,11 @@
+// 关联表：用户 ↔ 角色 (多对多)
+model SysAccountRole {
+  accountId Int
+  roleId    Int
+  account   SysAccount @relation(fields: [accountId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  role      SysRole    @relation(fields: [roleId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  createdAt DateTime   @default(now())
+
+  @@id([accountId, roleId])
+  @@map("sys_account_role")
+}

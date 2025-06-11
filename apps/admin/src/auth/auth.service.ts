@@ -1,0 +1,110 @@
+import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { PrismaService } from '@app/db/prisma.service';
+import { AccountLoginDto } from './dto/account-login.dto';
+import { JwtService } from '@nestjs/jwt';
+import { compareSync } from 'bcryptjs';
+import { ApiFail } from '@app/common/response/result';
+
+@Injectable()
+export class AuthService {
+  constructor(private prisma: PrismaService, private jwtService: JwtService) { }
+
+  /**
+   * 登录
+   * @param accountLoginDto 
+   * @returns 
+   */
+  async login(accountLoginDto: AccountLoginDto) {
+    const res = await this.prisma.sysAccount.findUnique({
+      where: {
+        email: accountLoginDto.email,
+      },
+    })
+    if (!res) {
+      throw new ApiFail(101, '账号不存在');
+    }
+    if (!compareSync(accountLoginDto.password, res.password)) {
+      throw new ApiFail(101, '密码错误');
+    }
+    const payload = { id: res.id, name: res.name, email: res.email };
+    return {
+      ...payload,
+      accessToken: await this.jwtService.signAsync(payload),
+    };
+  }
+  
+  /**
+   * 菜单传化为树形结构
+   * @param menus
+   * @returns
+   */
+  async buildMenuTree(flatMenu: any) {
+    const idMap = new Map<number, any>();
+    const tree: any = [];
+    // 建立 id -> item 的映射
+    flatMenu.forEach(item => {
+      idMap.set(item.id, { ...item, children: [] });
+    });
+    // 构建树
+    flatMenu.forEach(item => {
+      const current = idMap.get(item.id)!;
+      if (!item.parentId) {
+        tree.push(current);
+      } else {
+        const parent = idMap.get(item.parentId);
+        if (parent) {
+          parent.children!.push(current);
+        }
+      }
+    });
+    return tree;
+  }
+
+  /**
+   * 获取用户权限菜单
+   * @param id 用户id
+   * @returns
+   */
+  async getUserMenus(id: number) {
+    // 查找用户关联角色
+    const roles = await this.prisma.sysAccount.findUnique({
+      where: {
+        id,
+      },
+      include: {
+        roles: true
+      }
+    })
+    // 查找角色关联菜单
+    const menus = await this.prisma.sysRole.findMany({
+      where: {
+        id: {
+          in: roles.roles.map(item => item.roleId)
+        }
+      },
+      include: {
+        menus: {
+          include: {
+            menu: {
+              include: {
+                meta: true
+              }
+            }
+          }
+        }
+      }
+    });
+    let menuList = [];
+    // 菜单去重
+    menus.forEach(item => {
+      item.menus.forEach(menu => {
+        const hasMenu = menuList.find(menuItem => menuItem.id === menu.menu.id);
+        if (hasMenu) {
+          return;
+        }
+        menuList.push(menu.menu);
+      })
+    });
+    return this.buildMenuTree(menuList);
+  }
+}

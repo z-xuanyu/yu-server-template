@@ -14,9 +14,10 @@ export class HttpExceptionFilter implements ExceptionFilter {
     const request = ctx.getRequest();
     const status = exception instanceof HttpException ? exception.getStatus() : HttpStatus.INTERNAL_SERVER_ERROR;
     const result: any = exception?.getResponse();
+    console.log(result, 'result');
     const errorResponse = {
       status,
-      msg: result?.message || status === 429 ? '请求过于频繁，请稍后再试试。' : '服务器错误',
+      msg: result?.message ? result?.message : status === 429 ? '请求过于频繁，请稍后再试试。' : '服务器错误',
       code: 101, // 自定义code
       path: request.url, // 错误的url地址
       method: request.method, // 请求方式

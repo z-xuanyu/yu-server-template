@@ -14,9 +14,9 @@ import config from './config';
       load: [...Object.values(config)],
     }),
     DbModule,
-    RedisModule
+    RedisModule,
   ],
   providers: [CommonService],
-  exports: [CommonService],
+  exports: [CommonService, RedisModule],
 })
 export class CommonModule { }

@@ -18,7 +18,6 @@ const providers = [
     provide: REDIS_PUBSUB,
     useFactory: (configService: ConfigService<AllConfigKeyAndPath>) => {
       const redisOPtions = configService.get<IRedisConfig>(redisRegToken);
-      console.log(redisOPtions, 'redisOPtions');
       return new RedisSubPub(redisOPtions);
     },
     inject: [ConfigService],

@@ -4,7 +4,7 @@ import { AdminService } from './admin.service';
 import { CommonModule } from '@app/common';
 import { AccountModule } from './account/account.module';
 import { AuthModule } from './auth/auth.module';
-import { APP_GUARD } from '@nestjs/core';
+import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { AuthGuard } from './auth/auth.guard';
 import { RoleModule } from './role/role.module';
 import { MenuModule } from './menu/menu.module';
@@ -12,6 +12,8 @@ import { DeptModule } from './dept/dept.module';
 import { DictModule } from './dict/dict.module';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { LoggerModule } from './logger/logger.module';
+import { IdempotenceInterceptor } from '@app/common/interceptors/idempotence.interceptor';
+import { MailerModule } from './mailer/mailer.module';
 
 @Module({
   imports: [
@@ -25,6 +27,7 @@ import { LoggerModule } from './logger/logger.module';
       ],
     }),
     CommonModule,
+    MailerModule,
     AuthModule,
     AccountModule,
     RoleModule,
@@ -35,6 +38,10 @@ import { LoggerModule } from './logger/logger.module';
   controllers: [AdminController],
   providers: [
     AdminService,
+    {
+      provide: APP_INTERCEPTOR, // 全局守卫 处理请求幂等性事件
+      useClass: IdempotenceInterceptor,
+    },
     {
       provide: APP_GUARD,
       useClass: AuthGuard,

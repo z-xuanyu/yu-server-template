@@ -3,9 +3,14 @@ import { WebModule } from './web.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { HttpExceptionFilter } from '@app/common/filters/http-exception.filter';
 import { ValidationPipe } from '@nestjs/common';
+import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 
 async function bootstrap() {
-  const app = await NestFactory.create(WebModule);
+  const app = await NestFactory.create(WebModule, {
+    bufferLogs: true,
+  });
+  // 日志
+  app.useLogger(app.get(WINSTON_MODULE_NEST_PROVIDER));
   // 允许跨域
   app.enableCors();
   // dto参数校验管道

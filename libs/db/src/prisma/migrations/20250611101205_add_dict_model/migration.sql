@@ -1,0 +1,8 @@
+-- AlterTable
+ALTER TABLE `sys_dict` MODIFY `remark` VARCHAR(191) NOT NULL DEFAULT '',
+    MODIFY `sort` INTEGER NOT NULL DEFAULT 1;
+
+-- AlterTable
+ALTER TABLE `sys_dict_attr` MODIFY `remark` VARCHAR(191) NOT NULL DEFAULT '',
+    MODIFY `sort` INTEGER NOT NULL DEFAULT 1,
+    MODIFY `status` INTEGER NOT NULL DEFAULT 1;

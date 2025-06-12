@@ -1,0 +1,13 @@
+model SysDict {
+  id         Int          @id @default(autoincrement())
+  name       String
+  code       String
+  remark     String       @default("")
+  sort       Int          @default(1)
+  status     Int          @default(1)
+  dictAttr   SysDictAttr?
+  createTime DateTime     @default(now())
+  updateTime DateTime     @default(now())
+
+  @@map("sys_dict")
+}

@@ -1,0 +1,12 @@
+model SysDictAttr {
+  id     Int     @id @default(autoincrement())
+  label  String
+  value  String
+  remark String  @default("")
+  sort   Int     @default(1)
+  status Int     @default(1)
+  dictId Int     @unique
+  dict   SysDict @relation(fields: [dictId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@map("sys_dict_attr")
+}

@@ -6,9 +6,15 @@ import { AuthModule } from './auth/auth.module';
 import { CommonModule } from '@app/common';
 import { APP_GUARD } from '@nestjs/core';
 import { AuthGuard } from './auth/auth.guard';
+import { LoggerModule } from './logger/logger.module';
 
 @Module({
-  imports: [CommonModule, AuthModule, UserModule],
+  imports: [
+    LoggerModule,
+    CommonModule,
+    AuthModule,
+    UserModule
+  ],
   controllers: [WebController],
   providers: [
     WebService,

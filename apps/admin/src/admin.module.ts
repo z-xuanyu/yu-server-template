@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { AdminController } from './admin.controller';
 import { AdminService } from './admin.service';
 import { CommonModule } from '@app/common';
-import { AccountModule } from './account/account.module';
+import { UserModule } from './user/user.module';
 import { AuthModule } from './auth/auth.module';
 import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { AuthGuard } from './auth/auth.guard';
@@ -29,7 +29,7 @@ import { MailerModule } from './mailer/mailer.module';
     CommonModule,
     MailerModule,
     AuthModule,
-    AccountModule,
+    UserModule,
     RoleModule,
     MenuModule,
     DeptModule,

@@ -1,7 +1,7 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { IsArray, IsEmail, IsInt, IsNotEmpty, IsOptional } from "class-validator";
 
-export class CreateAccountDto {
+export class CreateUserDto {
   @IsNotEmpty({ message: "用户名不能为空" })
   @ApiProperty({ title: "名称", default: '阿宇' })
   name: string;

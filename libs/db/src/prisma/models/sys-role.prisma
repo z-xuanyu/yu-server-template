@@ -3,7 +3,7 @@ model SysRole {
   name        String
   code        String
   remark      String
-  accounts    SysAccountRole[]
+  userRole    SysUserRole[]
   permissions SysRolePermission[]
   menus       SysRoleMenu[]
   status      Int                 @default(1)

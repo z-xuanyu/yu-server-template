@@ -1,10 +1,10 @@
-model SysAccount {
+model SysUser {
   id        Int              @id @default(autoincrement())
   name      String
   avatar    String           @default("")
   email     String           @unique
   password  String
-  roles     SysAccountRole[]
+  roles     SysUserRole[]
   deptId    Int?
   dept      SysDept?         @relation(fields: [deptId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   status    Int              @default(1)
@@ -12,5 +12,5 @@ model SysAccount {
   createdAt DateTime         @default(now())
   updatedAt DateTime         @updatedAt
 
-  @@map("sys_account")
+  @@map("sys_user")
 }

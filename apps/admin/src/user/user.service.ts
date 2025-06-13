@@ -1,38 +1,38 @@
 import { Injectable } from '@nestjs/common';
-import { CreateAccountDto } from './dto/create-account.dto';
-import { UpdateAccountDto } from './dto/update-account.dto';
+import { CreateUserDto } from './dto/create-user.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
 import { PrismaService } from '@app/db/prisma.service';
 import { hashSync } from 'bcryptjs';
 import { ApiFail } from '@app/common/response/result';
 
 @Injectable()
-export class AccountService {
+export class UserService {
   constructor(private prisma: PrismaService) { }
 
   /**
-   * 添加账号
-   * @param createAccountDto 参数对象 
+   * 添加用户
+   * @param createUserDto 参数对象 
    * @returns 
    */
-  async create(createAccountDto: CreateAccountDto) {
+  async create(createUserDto: CreateUserDto) {
     // 先查找用户是否存在
-    const user = await this.prisma.sysAccount.findUnique({
+    const user = await this.prisma.sysUser.findUnique({
       where: {
-        email: createAccountDto.email,
+        email: createUserDto.email,
       },
     });
     if (user) {
       throw new ApiFail(101, '用户已存在')
     } 
     // 先加密密码
-    const hashPassword = hashSync(createAccountDto.password, 10);
-    const res = await this.prisma.sysAccount.create({
+    const hashPassword = hashSync(createUserDto.password, 10);
+    const res = await this.prisma.sysUser.create({
       data: {
-        name: createAccountDto.name,
-        email: createAccountDto.email,
+        name: createUserDto.name,
+        email: createUserDto.email,
         password: hashPassword,
         roles: {
-          create: createAccountDto.roleIds?.map((roleId) => ({ roleId })),
+          create: createUserDto.roleIds?.map((roleId) => ({ roleId })),
         }
       },
     });
@@ -40,10 +40,10 @@ export class AccountService {
   }
   /**
    * 
-   * @returns 查找系统用户账号列表
+   * @returns 查找系统用户用户列表
    */
   async findAll() {
-    const res = await this.prisma.sysAccount.findMany({
+    const res = await this.prisma.sysUser.findMany({
       include: {
         roles: true,
       },
@@ -51,12 +51,12 @@ export class AccountService {
     return res;
   }
   /**
-   * 系统用户账号信息
-   * @param id 账号id
+   * 系统用户用户信息
+   * @param id 用户id
    * @returns 
    */
   async findOne(id: number) {
-    const res = await this.prisma.sysAccount.findUnique({
+    const res = await this.prisma.sysUser.findUnique({
       where: {
         id,
       },
@@ -65,13 +65,13 @@ export class AccountService {
   }
   /**
    * 
-   * @param id 账号id
-   * @param updateAccountDto 参数对象 
+   * @param id 用户id
+   * @param updateUserDto 参数对象 
    * @returns 
    */
-  async update(id: number, updateAccountDto: UpdateAccountDto) {
-    const { roleIds, ...datas } = updateAccountDto;
-    const res = await this.prisma.sysAccount.update({
+  async update(id: number, updateUserDto: UpdateUserDto) {
+    const { roleIds, ...datas } = updateUserDto;
+    const res = await this.prisma.sysUser.update({
       where: {
         id,
       },
@@ -88,11 +88,11 @@ export class AccountService {
 
   /**
    * 
-   * @param id 账号id
+   * @param id 用户id
    * @returns 
    */
   async remove(id: number) {
-    const res = await this.prisma.sysAccount.delete({
+    const res = await this.prisma.sysUser.delete({
       where: {
         id,
       },

@@ -1,6 +1,6 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { PrismaService } from '@app/db/prisma.service';
-import { AccountLoginDto } from './dto/account-login.dto';
+import { UserLoginDto } from './dto/user-login.dto';
 import { JwtService } from '@nestjs/jwt';
 import { compareSync } from 'bcryptjs';
 import { ApiFail } from '@app/common/response/result';
@@ -11,19 +11,19 @@ export class AuthService {
 
   /**
    * 登录
-   * @param accountLoginDto 
+   * @param userLoginDto 
    * @returns 
    */
-  async login(accountLoginDto: AccountLoginDto) {
-    const res = await this.prisma.sysAccount.findUnique({
+  async login(userLoginDto: UserLoginDto) {
+    const res = await this.prisma.sysUser.findUnique({
       where: {
-        email: accountLoginDto.email,
+        email: userLoginDto.email,
       },
     })
     if (!res) {
-      throw new ApiFail(101, '账号不存在');
+      throw new ApiFail(101, '用户不存在');
     }
-    if (!compareSync(accountLoginDto.password, res.password)) {
+    if (!compareSync(userLoginDto.password, res.password)) {
       throw new ApiFail(101, '密码错误');
     }
     const payload = { id: res.id, name: res.name, email: res.email };
@@ -67,7 +67,7 @@ export class AuthService {
    */
   async getUserMenus(id: number) {
     // 查找用户关联角色
-    const roles = await this.prisma.sysAccount.findUnique({
+    const roles = await this.prisma.sysUser.findUnique({
       where: {
         id,
       },

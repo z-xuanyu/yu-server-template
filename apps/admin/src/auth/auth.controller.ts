@@ -1,6 +1,6 @@
 import { Controller, Post, Body, Get, Request } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { AccountLoginDto } from './dto/account-login.dto';
+import { UserLoginDto } from './dto/user-login.dto';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { Public } from './auth.guard';
 import { apiSucceed } from '@app/common/response/result';
@@ -16,9 +16,9 @@ export class AuthController {
 
   @Public()
   @Post('login')
-  @ApiOperation({ summary: '账号登录' })
-  async create(@Body() accountLoginDto: AccountLoginDto) {
-    const res = await this.authService.login(accountLoginDto);
+  @ApiOperation({ summary: '用户登录' })
+  async create(@Body() userLoginDto: UserLoginDto) {
+    const res = await this.authService.login(userLoginDto);
     return apiSucceed(res);
   }
 

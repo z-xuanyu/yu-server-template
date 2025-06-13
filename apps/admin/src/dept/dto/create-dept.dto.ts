@@ -1,25 +1,23 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { IsNumber, IsString } from "class-validator";
+import { IsNotEmpty, IsOptional } from "class-validator";
 
 export class CreateDeptDto {
 
   @ApiProperty({ title: '名称' })
-  @IsString()
+  @IsOptional()
+  @IsNotEmpty({ message: '名称不能为空' })
   name: string;
 
   @ApiProperty({ title: '父级id' })
-  @IsNumber()
+  @IsOptional()
   parentId?: number;
 
   @ApiProperty({ title: '排序' })
-  @IsNumber()
+  @IsOptional()
   sort: number;
 
-  @ApiProperty({ title: '状态' })
-  @IsNumber()
-  status: number;
-
   @ApiProperty({ title: '备注' })
-  @IsString()
+  @IsOptional()
+  @IsNotEmpty({ message: '备注不能为空' })
   remark: string;
 }

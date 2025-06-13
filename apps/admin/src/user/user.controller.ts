@@ -1,18 +1,19 @@
-import { Controller, Get, Post, Body, Param, Delete, Put } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Delete, Put, Query } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { ApiBearerAuth, ApiOperation, ApiParam, ApiTags } from '@nestjs/swagger';
 import { apiSucceed } from '@app/common/response/result';
+import { QueryUserDto } from './dto/query-user.dto';
 
 @ApiTags('用户管理')
 @ApiBearerAuth()
 @Controller('user')
 export class UserController {
-  constructor(private readonly userService: UserService) {}
+  constructor(private readonly userService: UserService) { }
 
   @Post()
-  @ApiOperation({ summary: "新增用户"  })
+  @ApiOperation({ summary: "新增用户" })
   async create(@Body() createUserDto: CreateUserDto) {
     const res = await this.userService.create(createUserDto);
     return apiSucceed(res);
@@ -20,8 +21,8 @@ export class UserController {
 
   @Get()
   @ApiOperation({ summary: "获取用户列表" })
-  async findAll() {
-    const res = await this.userService.findAll();
+  async findAll(@Query() queryUserDto: QueryUserDto) {
+    const res = await this.userService.findAll(queryUserDto);
     return apiSucceed(res);
   }
 

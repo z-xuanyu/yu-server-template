@@ -16,7 +16,7 @@ export class MenuService {
   async create(createMenuDto: CreateMenuDto) {
     const { type, meta, name, redirect, path, parentId, component, permissions } = createMenuDto;
     switch (type) {
-      case MenuType.DIRECTORY:
+      case MenuType.CATALOG:
         if (parentId) {
           return await this.prisma.sysMenu.create({
             data: {
@@ -132,7 +132,6 @@ export class MenuService {
           key: `permission-${perm.permission.id}`,
           meta: {
             title: perm.permission.name,
-            icon: '',
           },
           // 注意：这里也不包含 permissions 字段
           code: perm.permission.code,
@@ -192,53 +191,83 @@ export class MenuService {
    */
   async update(id: number, updateMenuDto: UpdateMenuDto) {
     const { type, meta, name, redirect, path, parentId, component, permissions } = updateMenuDto;
-    switch (type) {
-      case MenuType.DIRECTORY:
-        return await this.prisma.sysMenu.update({
-          where: {
-            id
-          },
-          data: {
-            name,
-            redirect,
-            path,
-            parent: {
-              connect: {
-                id: parentId
-              }
+    try {
+      switch (type) {
+        case MenuType.CATALOG:
+          return await this.prisma.sysMenu.update({
+            where: {
+              id
             },
-            meta: {
-              update: {
-                ...meta
+            data: {
+              name,
+              redirect,
+              path,
+              parent: {
+                connect: {
+                  id: parentId
+                }
+              },
+              meta: {
+                update: {
+                  ...meta
+                }
               }
             }
-          }
-        })
-      case MenuType.MENU:
-        return await this.prisma.sysMenu.update({
-          where: {
-            id
-          },
-          data: {
-            name,
-            redirect,
-            path,
-            component,
-            parent: {
-              connect: {
-                id: parentId
-              }
+          })
+        case MenuType.MENU:
+          return await this.prisma.sysMenu.update({
+            where: {
+              id
             },
-            meta: {
-              update: {
-                ...meta
+            data: {
+              name,
+              redirect,
+              path,
+              component,
+              parent: {
+                connect: {
+                  id: parentId
+                }
+              },
+              meta: {
+                update: {
+                  icon: meta.icon,
+                  title: meta.title,
+                  order: meta.order
+                }
               }
             }
-          }
-        })
-      case MenuType.BUTTON:
-      // 添加按钮权限
+          })
+        case MenuType.BUTTON:
+          return await this.prisma.sysMenu.update({
+            where: {
+              id: parentId
+            },
+            data: {
+              permissions: {
+                create: permissions.map((permission) => ({
+                  permission: {
+                    connectOrCreate: {
+                      where: {
+                        code: permission.code,
+                      },
+                      create: {
+                        code: permission.code,
+                        name: permission.name,
+                        description: permission.description,
+                      }
+                    }
+                  }
+                }))
+              }
+            }
+          })
+      }
+    } catch (error) {
+      console.log(error)
+      throw new ApiFail(101, '更新菜单失败');
     }
+
   }
 
   /**

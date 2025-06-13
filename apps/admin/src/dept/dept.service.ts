@@ -3,6 +3,7 @@ import { CreateDeptDto } from './dto/create-dept.dto';
 import { UpdateDeptDto } from './dto/update-dept.dto';
 import { PrismaService } from '@app/db/prisma.service';
 import { QueryDeptDto } from './dto/query-dept.dto';
+import { ApiFail } from '@app/common/response/result';
 
 @Injectable()
 export class DeptService {
@@ -14,11 +15,15 @@ export class DeptService {
    * @returns 
    */
   async create(createDeptDto: CreateDeptDto) {
-    return await this.prisma.sysDept.create({
-      data: {
-        ...createDeptDto,
-      },
-    })
+    try {
+      return await this.prisma.sysDept.create({
+        data: {
+          ...createDeptDto,
+        },
+      })
+    } catch (error) {
+      throw new ApiFail(101, '添加部门失败')
+    }
   }
 
   /**
@@ -42,11 +47,11 @@ export class DeptService {
       total,
     }
   }
- /**
-  * 查询部门详情
-  * @param id 部门id
-  * @returns
-  * */
+  /**
+   * 查询部门详情
+   * @param id 部门id
+   * @returns
+   * */
   async findOne(id: number) {
     return await this.prisma.sysDept.findUnique({
       where: { id },
@@ -60,12 +65,16 @@ export class DeptService {
    * @returns 
    */
   async update(id: number, updateDeptDto: UpdateDeptDto) {
-    return await this.prisma.sysDept.update({
-      where: { id },
-      data: {
-        ...updateDeptDto,
-      },
-    })
+    try {
+      return await this.prisma.sysDept.update({
+        where: { id },
+        data: {
+          ...updateDeptDto,
+        },
+      })
+    } catch (error) {
+      throw new ApiFail(101, '更新部门失败')
+    }
   }
   /**
    * 删除部门
@@ -73,8 +82,12 @@ export class DeptService {
    * @returns
    */
   async remove(id: number) {
-    return await this.prisma.sysDept.delete({
-      where: { id },
-    })
+    try {
+      return await this.prisma.sysDept.delete({
+        where: { id },
+      })
+    } catch (error) {
+      throw new ApiFail(101, '删除部门失败');
+    }
   }
 }

@@ -1,17 +1,17 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { IsNumber, IsString } from "class-validator";
+import { IsNumber, IsOptional } from "class-validator";
 
 export class QueryDeptDto {
 
-  @ApiProperty({ title: '名称' })
-  @IsString()
+  @ApiProperty({ title: '名称', required: false })
+  @IsOptional()
   name?: string;
 
-  @ApiProperty({ title: '页码' })
-  @IsNumber()
+  @ApiProperty({ title: '页码', required: false })
+  @IsOptional()
   page?: number;
 
-  @ApiProperty({ title: '每页条数' })
-  @IsNumber()
+  @ApiProperty({ title: '每页条数', required: false })
+  @IsOptional()
   pageSize?: number;
 }

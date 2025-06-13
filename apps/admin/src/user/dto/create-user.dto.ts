@@ -1,5 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { IsArray, IsEmail, IsInt, IsNotEmpty, IsOptional } from "class-validator";
+import { IsArray, IsEmail, IsInt, IsNotEmpty, IsNumber, IsOptional } from "class-validator";
 
 export class CreateUserDto {
   @IsNotEmpty({ message: "用户名不能为空" })
@@ -20,4 +20,9 @@ export class CreateUserDto {
   @IsOptional()
   @IsInt({ each: true })
   roleIds?: number[];
+
+  @ApiProperty({ title: '关联部门' , required: false})
+  @IsNumber()
+  @IsOptional()
+  deptId?: number;
 }

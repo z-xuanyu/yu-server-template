@@ -41,6 +41,13 @@ export class AuthController {
     return apiSucceed(res);
   }
 
+  @Get('codes')
+  @ApiOperation({ summary: '获取用户权限码' })
+  async getCodes(@Request() req) {
+    const res = await this.authService.getUserPermissioncodes(req.user.id);
+    return apiSucceed(res);
+  }
+
   @Post('sendEmailCode')
   @ApiOperation({ summary: '发送邮箱验证码' })
   @Public()

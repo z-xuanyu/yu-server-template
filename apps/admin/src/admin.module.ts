@@ -39,10 +39,6 @@ import { MailerModule } from './mailer/mailer.module';
   providers: [
     AdminService,
     {
-      provide: APP_INTERCEPTOR, // 全局守卫 处理请求幂等性事件
-      useClass: IdempotenceInterceptor,
-    },
-    {
       provide: APP_GUARD,
       useClass: AuthGuard,
     },

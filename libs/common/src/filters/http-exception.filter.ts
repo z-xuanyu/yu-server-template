@@ -6,6 +6,7 @@
  * @Description: 错误处理
  */
 import { ArgumentsHost, Catch, ExceptionFilter, HttpException, HttpStatus, Logger, } from '@nestjs/common';
+import { isArray } from '../utils/is';
 @Catch()
 export class HttpExceptionFilter implements ExceptionFilter {
   catch(exception: HttpException, host: ArgumentsHost): any {
@@ -14,10 +15,12 @@ export class HttpExceptionFilter implements ExceptionFilter {
     const request = ctx.getRequest();
     const status = exception instanceof HttpException ? exception.getStatus() : HttpStatus.INTERNAL_SERVER_ERROR;
     const result: any = exception?.getResponse();
-    console.log(result, 'result');
+    if(isArray(result?.message)) {
+      result.message = result.message?.join(',');
+    }
     const errorResponse = {
       status,
-      msg: result?.message ? result?.message : status === 429 ? '请求过于频繁，请稍后再试试。' : '服务器错误',
+      message: result?.message ? result?.message : status === 429 ? '请求过于频繁，请稍后再试试。' : '服务器错误',
       code: 101, // 自定义code
       path: request.url, // 错误的url地址
       method: request.method, // 请求方式

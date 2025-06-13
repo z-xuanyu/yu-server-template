@@ -107,4 +107,31 @@ export class AuthService {
     });
     return this.buildMenuTree(menuList);
   }
+
+  // 获取用户权限码
+  async getUserPermissioncodes(id: number) {
+    const userInfo = await this.prisma.sysUser.findUnique({
+      where: {
+        id,
+      },
+      include: {
+        roles: {
+          include: {
+            role: {
+              include: {
+                permissions: {
+                  include: {
+                    permission: true
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    })
+    const list = userInfo?.roles?.map(r=>r?.role?.permissions?.map(p=>p?.permission?.code));
+    // 去重
+    return list.flat().filter((item, index, arr) => arr.indexOf(item) === index);
+  }
 }

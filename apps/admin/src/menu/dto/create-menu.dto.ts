@@ -2,7 +2,7 @@ import { ApiProperty } from "@nestjs/swagger";
 import { IsOptional } from "class-validator";
 
 export enum MenuType {
-  DIRECTORY = 'directory',
+  CATALOG = 'catalog',
   MENU = 'menu',
   BUTTON = 'button',
 }
@@ -60,7 +60,7 @@ export class CreateMenuDto {
   @IsOptional()
   parentId?: number;
 
-  @ApiProperty({ title: '类型', enum: MenuType, default: MenuType.DIRECTORY })
+  @ApiProperty({ title: '类型', enum: MenuType, default: MenuType.CATALOG })
   @IsOptional()
   type: MenuType;
 

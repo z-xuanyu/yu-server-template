@@ -1,19 +1,24 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { PrismaService } from '@app/db/prisma.service';
 import { hashSync } from 'bcryptjs';
 import { ApiFail } from '@app/common/response/result';
 import { QueryUserDto } from './dto/query-user.dto';
+import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
+import { Logger } from 'winston';
 
 @Injectable()
 export class UserService {
-  constructor(private prisma: PrismaService) { }
+  constructor(
+    private prisma: PrismaService,
+    @Inject(WINSTON_MODULE_PROVIDER) private readonly logger: Logger,
+  ) {}
 
   /**
    * 添加用户
-   * @param createUserDto 参数对象 
-   * @returns 
+   * @param createUserDto 参数对象
+   * @returns
    */
   async create(createUserDto: CreateUserDto) {
     try {
@@ -24,7 +29,7 @@ export class UserService {
         },
       });
       if (user) {
-        throw new ApiFail(101, '用户已存在')
+        throw new ApiFail(101, '用户已存在');
       }
       // 先加密密码
       const hashPassword = hashSync(createUserDto.password, 10);
@@ -39,12 +44,12 @@ export class UserService {
           dept: {
             connect: {
               id: createUserDto.deptId,
-            }
-          }
+            },
+          },
         },
       });
     } catch (error) {
-      // this.logger.error(['[添加用户失败]'], JSON.stringify(error));
+      this.logger.error('[添加用户失败]', JSON.stringify(error));
       throw new ApiFail(102, '添加用户失败');
     }
   }
@@ -55,12 +60,13 @@ export class UserService {
    */
   async findAll(queryUserDto: QueryUserDto) {
     try {
-      const { page = 1, pageSize = 10, name } = queryUserDto;
+      const { page = 1, pageSize = 10, name, deptId } = queryUserDto;
       const where = {
         name: {
           contains: name,
         },
-      }
+        deptId: deptId ? Number(deptId) : undefined,
+      };
       const [total, items] = await this.prisma.$transaction([
         this.prisma.sysUser.count({
           where,
@@ -71,6 +77,7 @@ export class UserService {
           where,
           include: {
             roles: true,
+            dept: true,
           },
         }),
       ]);
@@ -79,13 +86,13 @@ export class UserService {
         items,
       };
     } catch (error) {
-      throw new ApiFail(102, '查询用户列表失败')
+      throw new ApiFail(102, '查询用户列表失败');
     }
   }
   /**
    * 系统用户用户信息
    * @param id 用户id
-   * @returns 
+   * @returns
    */
   async findOne(id: number) {
     const res = await this.prisma.sysUser.findUnique({
@@ -96,10 +103,10 @@ export class UserService {
     return res;
   }
   /**
-   * 
+   *
    * @param id 用户id
-   * @param updateUserDto 参数对象 
-   * @returns 
+   * @param updateUserDto 参数对象
+   * @returns
    */
   async update(id: number, updateUserDto: UpdateUserDto) {
     const { roleIds, ...datas } = updateUserDto;
@@ -112,23 +119,23 @@ export class UserService {
         roles: {
           deleteMany: {},
           create: roleIds?.map((roleId) => ({ roleId })),
-        }
+        },
       },
     });
     return res;
   }
 
   /**
-   * 
+   *
    * @param id 用户id
-   * @returns 
+   * @returns
    */
   async remove(id: number) {
     const res = await this.prisma.sysUser.delete({
       where: {
         id,
       },
-    })
+    });
     return res;
   }
 }

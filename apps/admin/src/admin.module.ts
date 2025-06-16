@@ -4,7 +4,7 @@ import { AdminService } from './admin.service';
 import { CommonModule } from '@app/common';
 import { UserModule } from './user/user.module';
 import { AuthModule } from './auth/auth.module';
-import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
+import { APP_GUARD } from '@nestjs/core';
 import { AuthGuard } from './auth/auth.guard';
 import { RoleModule } from './role/role.module';
 import { MenuModule } from './menu/menu.module';
@@ -12,7 +12,6 @@ import { DeptModule } from './dept/dept.module';
 import { DictModule } from './dict/dict.module';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { LoggerModule } from './logger/logger.module';
-import { IdempotenceInterceptor } from '@app/common/interceptors/idempotence.interceptor';
 import { MailerModule } from './mailer/mailer.module';
 
 @Module({
@@ -33,7 +32,7 @@ import { MailerModule } from './mailer/mailer.module';
     RoleModule,
     MenuModule,
     DeptModule,
-    DictModule
+    DictModule,
   ],
   controllers: [AdminController],
   providers: [
@@ -44,8 +43,8 @@ import { MailerModule } from './mailer/mailer.module';
     },
     {
       provide: APP_GUARD,
-      useClass: ThrottlerGuard
-    }
+      useClass: ThrottlerGuard,
+    },
   ],
 })
-export class AdminModule { }
+export class AdminModule {}

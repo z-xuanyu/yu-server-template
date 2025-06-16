@@ -1,7 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { AdminModule } from './admin.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-import { ValidationPipe, VersioningType } from '@nestjs/common';
+import { ValidationPipe } from '@nestjs/common';
 import { HttpExceptionFilter } from '@app/common/filters/http-exception.filter';
 import * as basicAuth from 'express-basic-auth';
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
@@ -15,13 +15,15 @@ async function bootstrap() {
   // 允许跨域
   app.enableCors();
   // dto参数校验管道
-  app.useGlobalPipes(new ValidationPipe({
-    whitelist: true,
-    transform: true,
-    transformOptions: {
-      enableImplicitConversion: true,
-    }
-  }));
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true,
+      transform: true,
+      transformOptions: {
+        enableImplicitConversion: true,
+      },
+    }),
+  );
   // 全局注册错误的过滤器(错误异常)
   app.useGlobalFilters(new HttpExceptionFilter());
   // 版本控制
@@ -30,12 +32,15 @@ async function bootstrap() {
   //   type: VersioningType.URI,
   // });
   // 设置swagger密码方法
-  app.use(['/api-docs', '/api-docs-json'], basicAuth({
-    challenge: true,
-    users: {
-      xuanyu: 'qq812006298'
-    }
-  }))
+  app.use(
+    ['/api-docs', '/api-docs-json'],
+    basicAuth({
+      challenge: true,
+      users: {
+        xuanyu: 'qq812006298',
+      },
+    }),
+  );
   // swagger配置
   const config = new DocumentBuilder()
     .setTitle('Admin端接口Api')
@@ -50,7 +55,7 @@ async function bootstrap() {
       docExpansion: 'none',
       filter: true,
       showRequestDuration: true,
-    }
+    },
   });
   // 监听端口
   await app.listen(3000);

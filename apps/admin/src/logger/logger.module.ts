@@ -36,4 +36,4 @@ import 'winston-daily-rotate-file';
     }),
   ],
 })
-export class LoggerModule { }
+export class LoggerModule {}

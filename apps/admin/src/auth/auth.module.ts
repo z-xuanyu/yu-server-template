@@ -14,6 +14,6 @@ import { MailerService } from '../mailer/mailer.service';
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService, MailerService]
+  providers: [AuthService, MailerService],
 })
-export class AuthModule { }
+export class AuthModule {}

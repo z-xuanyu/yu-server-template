@@ -1,7 +1,7 @@
-import { Controller, Get, Version } from '@nestjs/common';
+import { Controller, Get } from '@nestjs/common';
 import { AdminService } from './admin.service';
 import { ApiTags } from '@nestjs/swagger';
-import { Public } from './auth/auth.guard';
+import { Public } from './auth/guards/auth.guard';
 import { Throttle } from '@nestjs/throttler';
 import { Idempotence } from '@app/common/decorators/idempotence.decorator';
 
@@ -9,7 +9,7 @@ import { Idempotence } from '@app/common/decorators/idempotence.decorator';
 @Public()
 @Controller()
 export class AdminController {
-  constructor(private readonly adminService: AdminService) { }
+  constructor(private readonly adminService: AdminService) {}
 
   @Throttle({ default: { limit: 1, ttl: 1000 } })
   @Idempotence({

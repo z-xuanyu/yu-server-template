@@ -7,19 +7,19 @@ import { ApiFail } from '@app/common/response/result';
 
 @Injectable()
 export class AuthService {
-  constructor(private prisma: PrismaService, private jwtService: JwtService) { }
+  constructor(private prisma: PrismaService, private jwtService: JwtService) {}
 
   /**
    * 登录
-   * @param userLoginDto 
-   * @returns 
+   * @param userLoginDto
+   * @returns
    */
   async login(userLoginDto: UserLoginDto) {
     const res = await this.prisma.sysUser.findUnique({
       where: {
         email: userLoginDto.email,
       },
-    })
+    });
     if (!res) {
       throw new ApiFail(101, '用户不存在');
     }
@@ -32,7 +32,7 @@ export class AuthService {
       accessToken: await this.jwtService.signAsync(payload),
     };
   }
-  
+
   /**
    * 菜单传化为树形结构
    * @param menus
@@ -42,11 +42,11 @@ export class AuthService {
     const idMap = new Map<number, any>();
     const tree: any = [];
     // 建立 id -> item 的映射
-    flatMenu.forEach(item => {
+    flatMenu.forEach((item) => {
       idMap.set(item.id, { ...item, children: [] });
     });
     // 构建树
-    flatMenu.forEach(item => {
+    flatMenu.forEach((item) => {
       const current = idMap.get(item.id)!;
       if (!item.parentId) {
         tree.push(current);
@@ -72,38 +72,40 @@ export class AuthService {
         id,
       },
       include: {
-        roles: true
-      }
-    })
+        roles: true,
+      },
+    });
     // 查找角色关联菜单
     const menus = await this.prisma.sysRole.findMany({
       where: {
         id: {
-          in: roles.roles.map(item => item.roleId)
-        }
+          in: roles.roles.map((item) => item.roleId),
+        },
       },
       include: {
         menus: {
           include: {
             menu: {
               include: {
-                meta: true
-              }
-            }
-          }
-        }
-      }
+                meta: true,
+              },
+            },
+          },
+        },
+      },
     });
-    let menuList = [];
+    const menuList = [];
     // 菜单去重
-    menus.forEach(item => {
-      item.menus.forEach(menu => {
-        const hasMenu = menuList.find(menuItem => menuItem.id === menu.menu.id);
+    menus.forEach((item) => {
+      item.menus.forEach((menu) => {
+        const hasMenu = menuList.find(
+          (menuItem) => menuItem.id === menu.menu.id,
+        );
         if (hasMenu) {
           return;
         }
         menuList.push(menu.menu);
-      })
+      });
     });
     return this.buildMenuTree(menuList);
   }
@@ -121,17 +123,21 @@ export class AuthService {
               include: {
                 permissions: {
                   include: {
-                    permission: true
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    })
-    const list = userInfo?.roles?.map(r=>r?.role?.permissions?.map(p=>p?.permission?.code));
+                    permission: true,
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    });
+    const list = userInfo?.roles?.map((r) =>
+      r?.role?.permissions?.map((p) => p?.permission?.code),
+    );
     // 去重
-    return list.flat().filter((item, index, arr) => arr.indexOf(item) === index);
+    return list
+      .flat()
+      .filter((item, index, arr) => arr.indexOf(item) === index);
   }
 }

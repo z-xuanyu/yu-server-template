@@ -1,8 +1,15 @@
+/*
+ * @Author: 阿宇 969718197@qq.com
+ * @Date: 2025-06-05 14:12:48
+ * @LastEditors: 阿宇 969718197@qq.com
+ * @LastEditTime: 2025-06-16 14:40:07
+ * @Description:
+ */
 import { Controller, Post, Body, Get, Request } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { UserLoginDto } from './dto/user-login.dto';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
-import { Public } from './auth.guard';
+import { Public } from './guards/auth.guard';
 import { apiSucceed } from '@app/common/response/result';
 import { EmailSendCodeDto } from './dto/email-send-code.dto';
 import { Ip } from '@app/common/decorators/ip.decorator';
@@ -12,7 +19,10 @@ import { MailerService } from '../mailer/mailer.service';
 @ApiBearerAuth()
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService, private readonly mailerSerice: MailerService) { }
+  constructor(
+    private readonly authService: AuthService,
+    private readonly mailerSerice: MailerService,
+  ) {}
 
   @Public()
   @Post('login')
@@ -30,7 +40,7 @@ export class AuthController {
       userId: req.user?.id,
       realName: req.user?.name,
       avatar: '',
-    }
+    };
     return apiSucceed(infp);
   }
 

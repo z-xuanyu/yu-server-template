@@ -5,7 +5,7 @@ import { CommonModule } from '@app/common';
 import { UserModule } from './user/user.module';
 import { AuthModule } from './auth/auth.module';
 import { APP_GUARD } from '@nestjs/core';
-import { AuthGuard } from './auth/auth.guard';
+import { AuthGuard } from './auth/guards/auth.guard';
 import { RoleModule } from './role/role.module';
 import { MenuModule } from './menu/menu.module';
 import { DeptModule } from './dept/dept.module';
@@ -13,6 +13,8 @@ import { DictModule } from './dict/dict.module';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { LoggerModule } from './logger/logger.module';
 import { MailerModule } from './mailer/mailer.module';
+import { PermissionsGuard } from './auth/guards/permissions.guard';
+import { AuthService } from './auth/auth.service';
 
 @Module({
   imports: [
@@ -37,9 +39,14 @@ import { MailerModule } from './mailer/mailer.module';
   controllers: [AdminController],
   providers: [
     AdminService,
+    AuthService,
     {
       provide: APP_GUARD,
       useClass: AuthGuard,
+    },
+    {
+      provide: APP_GUARD,
+      useClass: PermissionsGuard,
     },
     {
       provide: APP_GUARD,

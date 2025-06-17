@@ -7,12 +7,12 @@ import { ApiFail } from '@app/common/response/result';
 
 @Injectable()
 export class DeptService {
-  constructor(private prisma: PrismaService) { }
+  constructor(private prisma: PrismaService) {}
 
   /**
    * 添加部门信息
    * @param createDeptDto 参数对象
-   * @returns 
+   * @returns
    */
   async create(createDeptDto: CreateDeptDto) {
     try {
@@ -20,16 +20,16 @@ export class DeptService {
         data: {
           ...createDeptDto,
         },
-      })
+      });
     } catch (error) {
-      throw new ApiFail(101, '添加部门失败')
+      throw new ApiFail(101, '添加部门失败');
     }
   }
 
   /**
    * 查询部门列表
    * @param queryDeptDto 参数对象
-   * @returns 
+   * @returns
    */
   async findAll(queryDeptDto: QueryDeptDto) {
     const { name, page = 1, pageSize = 10 } = queryDeptDto;
@@ -45,7 +45,7 @@ export class DeptService {
     return {
       items: list,
       total,
-    }
+    };
   }
   /**
    * 查询部门详情
@@ -55,14 +55,14 @@ export class DeptService {
   async findOne(id: number) {
     return await this.prisma.sysDept.findUnique({
       where: { id },
-    })
+    });
   }
 
   /**
    * 更新部门
    * @param id 部门id
-   * @param updateDeptDto 参数对象 
-   * @returns 
+   * @param updateDeptDto 参数对象
+   * @returns
    */
   async update(id: number, updateDeptDto: UpdateDeptDto) {
     try {
@@ -71,9 +71,9 @@ export class DeptService {
         data: {
           ...updateDeptDto,
         },
-      })
+      });
     } catch (error) {
-      throw new ApiFail(101, '更新部门失败')
+      throw new ApiFail(101, '更新部门失败');
     }
   }
   /**
@@ -85,7 +85,7 @@ export class DeptService {
     try {
       return await this.prisma.sysDept.delete({
         where: { id },
-      })
+      });
     } catch (error) {
       throw new ApiFail(101, '删除部门失败');
     }

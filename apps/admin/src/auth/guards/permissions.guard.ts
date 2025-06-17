@@ -5,16 +5,12 @@
  * @LastEditTime: 2025-06-16 15:24:37
  * @Description: 权限守卫
  */
-import {
-  CanActivate,
-  ExecutionContext,
-  Injectable,
-  UnauthorizedException,
-} from '@nestjs/common';
+import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { PERMISSION_KEY } from '../decorators/permissions.decorator';
 import { ErrorEnum } from '@app/common/constants/error.constant';
 import { AuthService } from '../auth.service';
+import { ApiFail } from '@app/common/response/result';
 // import { ApiFail } from '@app/common/response/result';
 
 @Injectable()
@@ -35,7 +31,7 @@ export class PermissionsGuard implements CanActivate {
     const request = context.switchToHttp().getRequest();
     const user = request.user;
     // 如果没有登录用户，直接抛出未授权异常
-    if (!user) throw new UnauthorizedException(ErrorEnum.LOGIN_FIRST);
+    if (!user) throw new ApiFail(1000, ErrorEnum.LOGIN_FIRST);
 
     // 演示环境，只能get请求
     // if (request.method !== 'GET') {
@@ -44,17 +40,16 @@ export class PermissionsGuard implements CanActivate {
 
     // 获取用户权限码
     const codes = await this.authService.getUserPermissioncodes(user.id);
-    console.log('codes', codes);
     if (!codes || codes.length === 0) {
       // 如果用户没有权限码，直接抛出未授权异常
-      throw new UnauthorizedException(ErrorEnum.NO_PERMISSION);
+      throw new ApiFail(10011, ErrorEnum.NO_PERMISSION);
     }
     // 如果用户没有权限码，直接抛出未授权异常
     const hasPermissions = requiredPermissions.some((permission) =>
       codes?.includes(permission),
     );
     if (!hasPermissions) {
-      throw new UnauthorizedException(ErrorEnum.NO_PERMISSION);
+      throw new ApiFail(10011, ErrorEnum.NO_PERMISSION);
     }
     return hasPermissions;
   }

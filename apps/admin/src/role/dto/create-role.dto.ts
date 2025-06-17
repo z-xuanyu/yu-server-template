@@ -1,5 +1,18 @@
-import { ApiProperty } from "@nestjs/swagger";
-import { IsArray, IsInt, IsNotEmpty, IsNumber, IsOptional } from "class-validator";
+/*
+ * @Author: 阿宇 969718197@qq.com
+ * @Date: 2025-06-09 11:09:33
+ * @LastEditors: 阿宇 969718197@qq.com
+ * @LastEditTime: 2025-06-17 11:11:21
+ * @Description:
+ */
+import { ApiProperty } from '@nestjs/swagger';
+import {
+  IsArray,
+  IsInt,
+  IsNotEmpty,
+  IsNumber,
+  IsOptional,
+} from 'class-validator';
 
 export class CreateRoleDto {
   @IsNotEmpty({ message: '名称不能为空' })
@@ -18,13 +31,13 @@ export class CreateRoleDto {
   @IsNumber()
   sort?: number;
 
-  @ApiProperty({ title: '权限', default: [], type: [Number], description: '权限ID', required: false })
-  @IsOptional()
-  @IsArray()
-  @IsInt({ each: true })
-  permissions?: number[];
-
-  @ApiProperty({ title: '菜单', required: false, default: [], description: '菜单ID', type: [Number] })
+  @ApiProperty({
+    title: '菜单',
+    required: false,
+    default: [],
+    description: '菜单ID',
+    type: [Number],
+  })
   @IsOptional()
   @IsArray()
   @IsInt({ each: true })

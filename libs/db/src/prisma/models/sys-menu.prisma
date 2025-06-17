@@ -1,13 +1,14 @@
 model SysMenu {
   id          Int                 @id @default(autoincrement())
   name        String
+  type        String             @default("catalog") // catalog: 目录 menu: 菜单, button: 按钮, embedded: 内链, link：外链
   parentId    Int?
-  path        String
-  component   String?
-  redirect    String?
+  path        String?             @default("")
+  component   String?             @default("")
+  redirect    String?             @default("")
+  authCode    String?             @default("") // 权限码
   meta        SysMenuMeta?
   roles       SysRoleMenu[]
-  permissions SysMenuPermission[]
   parent      SysMenu?            @relation("menu_relation", fields: [parentId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   children    SysMenu[]           @relation("menu_relation")
   createdAt   DateTime            @default(now())

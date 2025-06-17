@@ -1,10 +1,12 @@
-import { ApiProperty } from "@nestjs/swagger";
-import { IsOptional } from "class-validator";
+import { ApiProperty } from '@nestjs/swagger';
+import { IsOptional } from 'class-validator';
 
 export enum MenuType {
   CATALOG = 'catalog',
   MENU = 'menu',
   BUTTON = 'button',
+  LINK = 'link',
+  EMBEDDED = 'embedded',
 }
 
 class Mate {
@@ -20,21 +22,6 @@ class Mate {
   @IsOptional()
   order: number;
 }
-
-class Permission {
-  @ApiProperty({ title: '权限名称' })
-  @IsOptional()
-  name: string;
-
-  @ApiProperty({ title: '权限描述' })
-  @IsOptional()
-  description: string;
-
-  @ApiProperty({ title: '权限code' })
-  @IsOptional()
-  code: string;
-}
-
 export class CreateMenuDto {
   @IsOptional()
   @ApiProperty({ title: '菜单名称' })
@@ -48,13 +35,17 @@ export class CreateMenuDto {
   @IsOptional()
   component: string;
 
+  @ApiProperty({ title: '权限码' })
+  @IsOptional()
+  authCode?: string;
+
   @ApiProperty({ title: 'redirect' })
   @IsOptional()
   redirect?: string;
 
   @ApiProperty({ title: '菜单路由meta', required: false, type: Mate })
   @IsOptional()
-  meta?: Mate
+  meta?: Mate;
 
   @ApiProperty({ title: '父级菜单ID' })
   @IsOptional()
@@ -63,8 +54,4 @@ export class CreateMenuDto {
   @ApiProperty({ title: '类型', enum: MenuType, default: MenuType.CATALOG })
   @IsOptional()
   type: MenuType;
-
-  @ApiProperty({ title: '按钮权限', type: [Permission], required: false })
-  @IsOptional()
-  permissions?: Permission[];
 }

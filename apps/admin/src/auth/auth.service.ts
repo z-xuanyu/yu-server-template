@@ -104,6 +104,9 @@ export class AuthService {
         if (hasMenu) {
           return;
         }
+        if (menu.menu.type === 'button') {
+          return;
+        }
         menuList.push(menu.menu);
       });
     });
@@ -121,9 +124,9 @@ export class AuthService {
           include: {
             role: {
               include: {
-                permissions: {
+                menus: {
                   include: {
-                    permission: true,
+                    menu: true,
                   },
                 },
               },
@@ -133,11 +136,12 @@ export class AuthService {
       },
     });
     const list = userInfo?.roles?.map((r) =>
-      r?.role?.permissions?.map((p) => p?.permission?.code),
+      r?.role?.menus?.map((p) => p.menu.authCode),
     );
     // 去重
-    return list
+    const menus = list
       .flat()
       .filter((item, index, arr) => arr.indexOf(item) === index);
+    return menus.filter((item) => item);
   }
 }

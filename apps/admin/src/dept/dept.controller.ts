@@ -1,4 +1,13 @@
-import { Controller, Get, Post, Body, Param, Delete, Query, Put } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Param,
+  Delete,
+  Query,
+  Put,
+} from '@nestjs/common';
 import { DeptService } from './dept.service';
 import { CreateDeptDto } from './dto/create-dept.dto';
 import { UpdateDeptDto } from './dto/update-dept.dto';
@@ -6,7 +15,7 @@ import { ApiOperation, ApiParam, ApiTags } from '@nestjs/swagger';
 import { apiSucceed } from '@app/common/response/result';
 import { QueryDeptDto } from './dto/query-dept.dto';
 
-@ApiTags("部门管理")
+@ApiTags('部门管理')
 @Controller('dept')
 export class DeptController {
   constructor(private readonly deptService: DeptService) {}

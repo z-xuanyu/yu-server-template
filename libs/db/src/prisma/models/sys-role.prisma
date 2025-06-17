@@ -4,7 +4,6 @@ model SysRole {
   code        String
   remark      String
   userRole    SysUserRole[]
-  permissions SysRolePermission[]
   menus       SysRoleMenu[]
   status      Int                 @default(1)
   sort        Int                 @default(0)

@@ -1,4 +1,20 @@
-import { Controller, Get, Post, Body, Param, Delete, Query, Put } from '@nestjs/common';
+/*
+ * @Author: 阿宇 969718197@qq.com
+ * @Date: 2025-06-11 17:43:08
+ * @LastEditors: 阿宇 969718197@qq.com
+ * @LastEditTime: 2025-06-17 16:16:34
+ * @Description:
+ */
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Param,
+  Delete,
+  Query,
+  Put,
+} from '@nestjs/common';
 import { DictService } from './dict.service';
 import { CreateDictDto } from './dto/create-dict.dto';
 import { UpdateDictDto } from './dto/update-dict.dto';
@@ -11,7 +27,7 @@ import { UpdateDictAttrDto } from './dto/update-dict-attr.dto';
 @ApiTags('字典管理')
 @Controller('dict')
 export class DictController {
-  constructor(private readonly dictService: DictService) { }
+  constructor(private readonly dictService: DictService) {}
 
   @Post()
   @ApiOperation({ summary: '创建字典' })
@@ -22,8 +38,8 @@ export class DictController {
 
   @Get()
   @ApiOperation({ summary: '获取字典列表' })
-  findAll(@Query() query: QueryDictDto) {
-    const res = this.dictService.findAll(query);
+  async findAll(@Query() query: QueryDictDto) {
+    const res = await this.dictService.findAll(query);
     return apiSucceed(res);
   }
 
@@ -54,7 +70,10 @@ export class DictController {
   @Post(':id/attr')
   @ApiOperation({ summary: '添加字典属性' })
   @ApiParam({ name: 'id', description: '字典id' })
-  async createDictAttr(@Param('id') id: string, @Body() createDictAttrDto: CreateDictAttrDto) {
+  async createDictAttr(
+    @Param('id') id: string,
+    @Body() createDictAttrDto: CreateDictAttrDto,
+  ) {
     const res = await this.dictService.createDictAttr(+id, createDictAttrDto);
     return apiSucceed(res);
   }
@@ -67,18 +86,21 @@ export class DictController {
     return apiSucceed(res);
   }
 
-  @Put(':id/attr')
+  @Put(':id/attr/:attrId')
   @ApiOperation({ summary: '更新字典属性' })
-  @ApiParam({ name: 'id', description: '字典属性id' })
-  async updateDictAttr(@Param('id') id: string, @Body() updateDictAttrDto: UpdateDictAttrDto) {
+  @ApiParam({ name: 'attrId', description: '字典属性id' })
+  async updateDictAttr(
+    @Param('attrId') id: string,
+    @Body() updateDictAttrDto: UpdateDictAttrDto,
+  ) {
     const res = await this.dictService.updateDictAttr(+id, updateDictAttrDto);
     return apiSucceed(res);
   }
 
-  @Delete(':id/attr')
+  @Delete(':id/attr/:attrId')
   @ApiOperation({ summary: '删除字典属性' })
-  @ApiParam({ name: 'id', description: '字典属性id' })
-  async removeDictAttr(@Param('id') id: string) {
+  @ApiParam({ name: 'attrId', description: '字典属性id' })
+  async removeDictAttr(@Param('attrId') id: string) {
     const res = await this.dictService.removeDictAttr(+id);
     return apiSucceed(res);
   }

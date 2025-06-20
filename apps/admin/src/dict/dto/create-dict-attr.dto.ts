@@ -1,5 +1,12 @@
-import { ApiProperty } from "@nestjs/swagger";
-import { IsNotEmpty, IsOptional } from "class-validator";
+/*
+ * @Author: 阿宇 969718197@qq.com
+ * @Date: 2025-06-12 09:32:48
+ * @LastEditors: 阿宇 969718197@qq.com
+ * @LastEditTime: 2025-06-17 16:00:35
+ * @Description:
+ */
+import { ApiProperty } from '@nestjs/swagger';
+import { IsNotEmpty, IsOptional } from 'class-validator';
 
 export class CreateDictAttrDto {
   @ApiProperty({ description: '字典属性名称' })

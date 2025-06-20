@@ -5,29 +5,29 @@ import { PrismaService } from '@app/db/prisma.service';
 import { QueryDictDto } from './dto/query-dict.dto';
 import { CreateDictAttrDto } from './dto/create-dict-attr.dto';
 import { UpdateDictAttrDto } from './dto/update-dict-attr.dto';
+import { ApiFail } from '@app/common/response/result';
 
 @Injectable()
 export class DictService {
-  constructor(private prisma: PrismaService) { }
+  constructor(private prisma: PrismaService) {}
 
   /**
    * 添加字典
    * @param createDictDto 参数对象
-   * @returns 
+   * @returns
    */
   async create(createDictDto: CreateDictDto) {
     return this.prisma.sysDict.create({
       data: {
         ...createDictDto,
-      }
-    })
+      },
+    });
   }
-
 
   /**
    * 获取字典列表
-   * @param queryDictDto 参数对象 
-   * @returns 
+   * @param queryDictDto 参数对象
+   * @returns
    */
   async findAll(queryDictDto: QueryDictDto) {
     const { name, code, page = 1, pageSize = 10 } = queryDictDto;
@@ -37,13 +37,13 @@ export class DictService {
       },
       code: {
         contains: code,
-      }
-    }
+      },
+    };
     const [items, total] = await this.prisma.$transaction([
       this.prisma.sysDict.findMany({
-        where,
         skip: (page - 1) * pageSize,
         take: pageSize,
+        where,
       }),
       this.prisma.sysDict.count({
         where,
@@ -52,20 +52,20 @@ export class DictService {
     return {
       items,
       total,
-    }
+    };
   }
 
   /**
    * 获取字典详情
    * @param id 字典id
-   * @returns 
+   * @returns
    */
   async findOne(id: number) {
     return await this.prisma.sysDict.findUnique({
       where: {
         id,
-      }
-    })
+      },
+    });
   }
 
   /**
@@ -81,56 +81,74 @@ export class DictService {
       },
       data: {
         ...updateDictDto,
-      }
-    })
+      },
+    });
   }
 
   /**
    * 删除字段
    * @param id 字典id
-   * @returns 
+   * @returns
    */
   async remove(id: number) {
     return await this.prisma.sysDict.delete({
       where: {
         id,
-      }
-    })
+      },
+    });
   }
 
   /**
    * 添加字典属性
    * @param id 字典id
    * @param createDictAttrDto 参数对象
-   * @returns 
+   * @returns
    */
   async createDictAttr(id: number, createDictAttrDto: CreateDictAttrDto) {
-    return this.prisma.sysDictAttr.create({
-      data: {
-        ...createDictAttrDto,
-        dictId: id,
-      }
-    })
+    try {
+      return await this.prisma.sysDictAttr.create({
+        data: {
+          ...createDictAttrDto,
+          dictId: id,
+        },
+      });
+    } catch (error) {
+      throw new ApiFail(1001, '添加字典属性失败');
+    }
   }
 
   /**
    * 获取字典属性列表
    * @param id 字典id
-   * @returns 
+   * @returns
    */
   async findDictAttr(dictId: number) {
-    return await this.prisma.sysDictAttr.findMany({
-      where: {
-        dictId
-      }
-    })
+    const [total, items] = await this.prisma.$transaction([
+      this.prisma.sysDictAttr.count({
+        where: {
+          dictId,
+        },
+      }),
+      this.prisma.sysDictAttr.findMany({
+        where: {
+          dictId,
+        },
+        orderBy: {
+          sort: 'asc',
+        },
+      }),
+    ]);
+    return {
+      total,
+      items,
+    };
   }
 
   /**
    * 更新字典属性
    * @param id 字典属性id
-   * @param updateDictAttrDto 
-   * @returns 
+   * @param updateDictAttrDto
+   * @returns
    */
   async updateDictAttr(id: number, updateDictAttrDto: UpdateDictAttrDto) {
     return await this.prisma.sysDictAttr.update({
@@ -139,20 +157,24 @@ export class DictService {
       },
       data: {
         ...updateDictAttrDto,
-      }
-    })
+      },
+    });
   }
 
   /**
    * 删除字典属性
    * @param id 字典属性id
-   * @returns 
+   * @returns
    */
   async removeDictAttr(id: number) {
-    return await this.prisma.sysDictAttr.delete({
-      where: {
-        id,
-      }
-    })
+    try {
+      return await this.prisma.sysDictAttr.delete({
+        where: {
+          id,
+        },
+      });
+    } catch (error) {
+      console.error('删除字典属性失败:', error);
+    }
   }
 }

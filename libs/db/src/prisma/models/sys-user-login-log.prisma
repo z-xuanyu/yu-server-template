@@ -1,0 +1,10 @@
+model SysUserLoginLog {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  sysUser   SysUser  @relation(fields: [userId], references: [id])
+  ip        String
+  location  String   @default("未知")
+  os        String   @default("操作系统")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}

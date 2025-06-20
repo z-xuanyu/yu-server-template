@@ -11,7 +11,12 @@ model SysMenuMeta {
   hideChildrenInMenu Boolean? @default(false) // 用于配置页面的子页面是否在菜单中隐藏，隐藏后子页面不会在菜单中显示。
   badge              String?  @default("") // 用于配置页面的徽标，会在菜单显示。
   order              Int?     @default(0) // 排序。
+  activePath         String?  @default("") // 激活路径，匹配时会高亮菜单。
   link               String?  @default("") // 外链跳转路径，会在新窗口打开
+  iframeSrc          String?  @default("") // 内嵌iframe跳转路径，会在当前窗口打开
+  noBasicLayout      Boolean? @default(false) // 是否不使用基础布局，直接渲染页面内容。
+  badgeType          String?  @default("normal") // 用于配置页面的徽标类型。 'dot' | 'normal'
+  badgeVariants      String?  @default("success") // 用于配置页面的徽标颜色。 'default' | 'destructive' | 'primary' | 'success' | 'warning' | string
   menuId             Int      @unique
   menu               SysMenu? @relation(fields: [menuId], references: [id], onDelete: Cascade)
 

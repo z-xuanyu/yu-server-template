@@ -1,0 +1,19 @@
+-- AlterTable
+ALTER TABLE `sys_user` ADD COLUMN `gender` INTEGER NOT NULL DEFAULT 0,
+    ADD COLUMN `phone` VARCHAR(191) NULL DEFAULT '';
+
+-- CreateTable
+CREATE TABLE `SysUserLoginLog` (
+    `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `userId` INTEGER NOT NULL,
+    `ip` VARCHAR(191) NOT NULL,
+    `location` VARCHAR(191) NOT NULL DEFAULT '未知',
+    `os` VARCHAR(191) NOT NULL DEFAULT '操作系统',
+    `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `updatedAt` DATETIME(3) NOT NULL,
+
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- AddForeignKey
+ALTER TABLE `SysUserLoginLog` ADD CONSTRAINT `SysUserLoginLog_userId_fkey` FOREIGN KEY (`userId`) REFERENCES `sys_user`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;

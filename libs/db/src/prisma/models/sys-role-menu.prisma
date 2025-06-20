@@ -3,7 +3,6 @@ model SysRoleMenu {
   menuId    Int
   role      SysRole  @relation(fields: [roleId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   menu      SysMenu  @relation(fields: [menuId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  createdAt DateTime @default(now())
 
   @@id([roleId, menuId])
   @@map("sys_role_menu")

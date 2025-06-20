@@ -4,7 +4,6 @@ model SysUserRole {
   roleId    Int
   user   SysUser @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   role      SysRole    @relation(fields: [roleId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  createdAt DateTime   @default(now())
 
   @@id([userId, roleId])
   @@map("sys_user_role")

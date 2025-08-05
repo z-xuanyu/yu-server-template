@@ -24,9 +24,10 @@ import {
   ApiParam,
   ApiTags,
 } from '@nestjs/swagger';
-import { apiSucceed } from '@app/common/response/result';
+import { apiSucceed, apiSucceedWithTransform, apiSucceedWithPagination } from '@app/common/response/result';
 import { QueryUserDto } from './dto/query-user.dto';
 import { Permission } from '../auth/decorators/permissions.decorator';
+import { PublicUserDto } from './dto/public-user.dto';
 
 @ApiTags('用户管理')
 @ApiBearerAuth()
@@ -47,7 +48,10 @@ export class UserController {
   @ApiOperation({ summary: '获取用户列表' })
   async findAll(@Query() queryUserDto: QueryUserDto) {
     const res = await this.userService.findAll(queryUserDto);
-    return apiSucceed(res);
+    // 使用新的序列化功能，自动过滤敏感信息并转换数据格式
+    return apiSucceedWithPagination(res, PublicUserDto, {
+      excludeExtraneousValues: true
+    });
   }
 
   @Get(':id')
@@ -55,7 +59,10 @@ export class UserController {
   @ApiParam({ name: 'id', description: '用户ID' })
   async findOne(@Param('id') id: string) {
     const res = await this.userService.findOne(+id);
-    return apiSucceed(res);
+    // 使用新的序列化功能，自动过滤敏感信息
+    return apiSucceedWithTransform(res, PublicUserDto, {
+      excludeExtraneousValues: true
+    });
   }
 
   @Put(':id')

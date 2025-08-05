@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <script>
+        // sse 链接
+        var source = new EventSource(`http://localhost:3000/sse/1?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwibmFtZSI6IumYv-WuhyIsImVtYWlsIjoiYWRtaW5AcXEuY29tIiwiaWF0IjoxNzU0MzgzNTg2LCJleHAiOjE3NTQ5ODM1ODZ9.wfjAShCbQ67xxMDJy0gri1MNqMQ5gz00v7h5kBfhbZo`);
+        source.onmessage = function(e) {
+            console.log(e.data);
+        }
+        source.onerror = function(e) {
+            console.log(e);
+        }
+        source.onopen = function(e) {
+            console.log(e);
+        }
+    </script>
+</body>
+</html>

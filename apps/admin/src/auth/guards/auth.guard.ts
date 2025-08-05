@@ -27,7 +27,11 @@ export class AuthGuard implements CanActivate {
     }
 
     const request = context.switchToHttp().getRequest();
-    const token = this.extractTokenFromHeader(request);
+    let token = this.extractTokenFromHeader(request);
+    const queryToken = request.query.token;
+    if(queryToken) {
+      token = queryToken;
+    }
     if (!token) {
       throw new UnauthorizedException('token错误，请重新登录');
     }

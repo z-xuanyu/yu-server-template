@@ -3,9 +3,8 @@ import { RoleService } from './role.service';
 import { CreateRoleDto } from './dto/create-role.dto';
 import { UpdateRoleDto } from './dto/update-role.dto';
 import { ApiBearerAuth, ApiOperation, ApiParam, ApiTags } from '@nestjs/swagger';
-import { apiSucceed } from '@app/common/response/result';
+import { apiSucceed, apiSucceedWithPagination } from '@app/common/response/result';
 import { PublicRoleDto } from './dto/public-role.dto';
-import { plainToInstance } from 'class-transformer';
 import { QueryRoleDto } from './dto/query-role.dto';
 
 
@@ -26,8 +25,7 @@ export class RoleController {
   @ApiOperation({ summary: '查询所有角色' })
   async findAll(@Query() query: QueryRoleDto) {
     const res: any = await this.roleService.findAll(query);
-    res.items  = plainToInstance(PublicRoleDto, res.items);
-    return apiSucceed(res);
+    return apiSucceedWithPagination(res, PublicRoleDto);
   }
 
   @Get(':id')

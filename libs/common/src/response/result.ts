@@ -9,18 +9,22 @@
  */
 
 import { HttpException, HttpStatus } from '@nestjs/common';
+import { plainToInstance, ClassConstructor } from 'class-transformer';
+
 // 成功返回
 export class ApiSucceedResult<T> {
   code: number;
   data?: T;
   message: string;
 }
+
 // 分页返回
 export class PaginationResult<T> {
   total: number;
   items: T;
 }
-// 成功
+
+// 成功 - 基础版本
 export function apiSucceed<T>(data?: T): ApiSucceedResult<T> {
   return {
     code: 0,
@@ -28,6 +32,52 @@ export function apiSucceed<T>(data?: T): ApiSucceedResult<T> {
     message: '成功',
   };
 }
+
+// 成功 - 带序列化类型版本
+export function apiSucceedWithTransform<T, R>(
+  data: T,
+  dto: ClassConstructor<R>,
+  options?: {
+    excludeExtraneousValues?: boolean;
+    enableImplicitConversion?: boolean;
+  }
+): ApiSucceedResult<R> {
+  const transformedData = plainToInstance(dto, data, {
+    excludeExtraneousValues: options?.excludeExtraneousValues ?? false,
+    enableImplicitConversion: options?.enableImplicitConversion ?? true,
+  });
+  
+  return {
+    code: 0,
+    data: transformedData,
+    message: '成功',
+  };
+}
+
+// 分页成功 - 带序列化类型版本
+export function apiSucceedWithPagination<T, R>(
+  data: PaginationResult<T>,
+  dto: ClassConstructor<R>,
+  options?: {
+    excludeExtraneousValues?: boolean;
+    enableImplicitConversion?: boolean;
+  }
+): ApiSucceedResult<PaginationResult<R>> {
+  const transformedItems = plainToInstance(dto, data.items, {
+    excludeExtraneousValues: options?.excludeExtraneousValues ?? false,
+    enableImplicitConversion: options?.enableImplicitConversion ?? true,
+  });
+  
+  return {
+    code: 0,
+    data: {
+      total: data.total,
+      items: transformedItems,
+    },
+    message: '成功',
+  };
+}
+
 // 失败
 export class ApiFail extends HttpException {
   constructor(code = 101, message = '失败') {

@@ -15,6 +15,8 @@ import { LoggerModule } from './logger/logger.module';
 import { MailerModule } from './mailer/mailer.module';
 import { PermissionsGuard } from './auth/guards/permissions.guard';
 import { AuthService } from './auth/auth.service';
+import { SocketModule } from './socket/socket.module';
+import { SseModule } from './sse/sse.module';
 
 @Module({
   imports: [
@@ -30,6 +32,8 @@ import { AuthService } from './auth/auth.service';
     CommonModule,
     MailerModule,
     AuthModule,
+    SseModule,
+    SocketModule,
     UserModule,
     RoleModule,
     MenuModule,

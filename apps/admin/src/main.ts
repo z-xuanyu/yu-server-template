@@ -5,11 +5,17 @@ import { ValidationPipe } from '@nestjs/common';
 import { HttpExceptionFilter } from '@app/common/filters/http-exception.filter';
 import * as basicAuth from 'express-basic-auth';
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
+import { NestFastifyApplication } from '@nestjs/platform-fastify'
+import { fastifyApp } from '@app/common/adapters/fastify.adapter';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AdminModule, {
-    bufferLogs: true,
-  });
+  const app = await NestFactory.create<NestFastifyApplication>(
+    AdminModule,
+    fastifyApp,
+    {
+      bufferLogs: true,
+    }
+  );
   // 日志
   app.useLogger(app.get(WINSTON_MODULE_NEST_PROVIDER));
   // 允许跨域
@@ -37,7 +43,7 @@ async function bootstrap() {
     basicAuth({
       challenge: true,
       users: {
-        xuanyu: 'qq812006298',
+        xuanyu: '123456',
       },
     }),
   );

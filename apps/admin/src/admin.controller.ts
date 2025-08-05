@@ -1,6 +1,6 @@
 import { Controller, Get } from '@nestjs/common';
 import { AdminService } from './admin.service';
-import { ApiTags } from '@nestjs/swagger';
+import {  ApiTags } from '@nestjs/swagger';
 import { Public } from './auth/guards/auth.guard';
 import { Throttle } from '@nestjs/throttler';
 import { Idempotence } from '@app/common/decorators/idempotence.decorator';

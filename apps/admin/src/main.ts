@@ -37,23 +37,12 @@ async function bootstrap() {
   //   defaultVersion: '1',
   //   type: VersioningType.URI,
   // });
-  // 设置swagger密码方法
-  app.use(
-    ['/api-docs', '/api-docs-json'],
-    basicAuth({
-      challenge: true,
-      users: {
-        xuanyu: '123456',
-      },
-    }),
-  );
   // swagger配置
   const config = new DocumentBuilder()
     .setTitle('Admin端接口Api')
     .setDescription('969718197@qq.com')
     .setVersion('1.0')
     .addBearerAuth()
-
     .build();
   const documentFactory = () => SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api-docs', app, documentFactory, {

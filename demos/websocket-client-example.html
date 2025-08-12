@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebSocket 客户端示例</title>
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .container {
+            border: 1px solid #ddd;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+        .message {
+            background-color: #f0f0f0;
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 3px;
+        }
+        .error {
+            background-color: #ffebee;
+            color: #c62828;
+        }
+        .success {
+            background-color: #e8f5e8;
+            color: #2e7d32;
+        }
+        .info {
+            background-color: #e3f2fd;
+            color: #1565c0;
+        }
+        .warning {
+            background-color: #fff3e0;
+            color: #ef6c00;
+        }
+        input, button {
+            margin: 5px;
+            padding: 8px;
+        }
+        button {
+            background-color: #2196f3;
+            color: white;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #1976d2;
+        }
+        button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+            margin: 10px 0;
+        }
+        .stat-card {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            text-align: center;
+        }
+        .stat-number {
+            font-size: 24px;
+            font-weight: bold;
+            color: #2196f3;
+        }
+        .stat-label {
+            font-size: 12px;
+            color: #666;
+        }
+        .user-list {
+            max-height: 300px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            padding: 10px;
+            background: #f9f9f9;
+        }
+        .user-item {
+            padding: 5px;
+            border-bottom: 1px solid #eee;
+        }
+        .log-container {
+            max-height: 400px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            padding: 10px;
+            background: #f9f9f9;
+        }
+    </style>
+</head>
+<body>
+    <h1>WebSocket 客户端示例</h1>
+    
+    <div class="container">
+        <h3>连接设置</h3>
+        <input type="text" id="tokenInput" placeholder="输入JWT Token" style="width: 300px;">
+        <button onclick="connect()">连接</button>
+        <button onclick="disconnect()">断开连接</button>
+        <div id="connectionStatus" class="message">未连接</div>
+    </div>
+
+    <div class="container">
+        <h3>统计信息</h3>
+        <div class="stats" id="statsContainer">
+            <div class="stat-card">
+                <div class="stat-number" id="onlineCount">0</div>
+                <div class="stat-label">在线用户</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="totalConnections">0</div>
+                <div class="stat-label">总连接数</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="uniqueUsers">0</div>
+                <div class="stat-label">唯一用户</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="recentConnections">0</div>
+                <div class="stat-label">最近连接</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <h3>在线用户列表</h3>
+        <button onclick="getOnlineUsers()">刷新在线用户</button>
+        <button onclick="getConnectionStats()">获取统计信息</button>
+        <div class="user-list" id="onlineUsersList">暂无在线用户</div>
+    </div>
+
+    <div class="container">
+        <h3>发送消息</h3>
+        <input type="text" id="messageInput" placeholder="输入消息内容">
+        <button onclick="sendMessage()">发送消息</button>
+        <button onclick="joinRoom()">加入房间</button>
+        <button onclick="sendEvent()">发送事件</button>
+        <button onclick="sendPing()">发送心跳</button>
+    </div>
+
+    <div class="container">
+        <h3>连接日志</h3>
+        <button onclick="getConnectionLogs()">获取连接日志</button>
+        <button onclick="getUserConnectionHistory()">获取用户连接历史</button>
+        <div class="log-container" id="connectionLogs">暂无日志</div>
+    </div>
+
+    <div class="container">
+        <h3>消息日志</h3>
+        <div id="messageLog"></div>
+    </div>
+
+    <script>
+        let socket = null;
+        let currentUser = null;
+
+        function log(message, type = 'info') {
+            const logDiv = document.getElementById('messageLog');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${type}`;
+            messageDiv.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+            logDiv.appendChild(messageDiv);
+            logDiv.scrollTop = logDiv.scrollHeight;
+        }
+
+        function updateConnectionStatus(status, type = 'info') {
+            const statusDiv = document.getElementById('connectionStatus');
+            statusDiv.textContent = status;
+            statusDiv.className = `message ${type}`;
+        }
+
+        function updateStats(data) {
+            if (data.onlineCount !== undefined) {
+                document.getElementById('onlineCount').textContent = data.onlineCount;
+            }
+            if (data.totalConnections !== undefined) {
+                document.getElementById('totalConnections').textContent = data.totalConnections;
+            }
+            if (data.uniqueUsers !== undefined) {
+                document.getElementById('uniqueUsers').textContent = data.uniqueUsers;
+            }
+            if (data.recentConnections !== undefined) {
+                document.getElementById('recentConnections').textContent = data.recentConnections;
+            }
+        }
+
+        function updateOnlineUsers(users) {
+            const userListDiv = document.getElementById('onlineUsersList');
+            if (users && users.length > 0) {
+                userListDiv.innerHTML = users.map(user => `
+                    <div class="user-item">
+                        <strong>${user.username}</strong> (ID: ${user.userId})<br>
+                        <small>连接时间: ${new Date(user.connectedAt).toLocaleString()}</small><br>
+                        <small>最后活动: ${new Date(user.lastActivity).toLocaleString()}</small>
+                    </div>
+                `).join('');
+            } else {
+                userListDiv.innerHTML = '暂无在线用户';
+            }
+        }
+
+        function updateConnectionLogs(logs) {
+            const logsDiv = document.getElementById('connectionLogs');
+            if (logs && logs.length > 0) {
+                logsDiv.innerHTML = logs.map(log => `
+                    <div class="message ${log.event === 'connect' ? 'success' : 'warning'}">
+                        <strong>${log.event === 'connect' ? '连接' : '断开'}</strong> - 
+                        ${log.username} (${log.userId})<br>
+                        <small>时间: ${new Date(log.timestamp).toLocaleString()}</small><br>
+                        <small>Socket: ${log.socketId}</small>
+                    </div>
+                `).join('');
+            } else {
+                logsDiv.innerHTML = '暂无日志';
+            }
+        }
+
+        function connect() {
+            const token = document.getElementById('tokenInput').value.trim();
+            if (!token) {
+                alert('请输入JWT Token');
+                return;
+            }
+
+            try {
+                // 断开现有连接
+                if (socket) {
+                    socket.disconnect();
+                }
+
+                // 创建新连接
+                socket = io('http://localhost:3000/admin', {
+                    auth: {
+                        token: token
+                    },
+                });
+
+                socket.on('connect', () => {
+                    log('连接成功', 'success');
+                    updateConnectionStatus('已连接', 'success');
+                });
+
+                socket.on('disconnect', () => {
+                    log('连接断开', 'error');
+                    updateConnectionStatus('连接断开', 'error');
+                    currentUser = null;
+                });
+
+                socket.on('connect_error', (error) => {
+                    log(`连接错误: ${error.message}`, 'error');
+                    updateConnectionStatus('连接失败', 'error');
+                });
+
+                // 连接成功事件
+                socket.on('connection_success', (data) => {
+                    log(`连接成功: ${JSON.stringify(data)}`, 'success');
+                    currentUser = data.user;
+                });
+
+                // 用户上线事件
+                socket.on('user_connected', (data) => {
+                    log(`用户上线: ${data.username} (${data.userId})`, 'info');
+                    updateStats({ onlineCount: data.onlineCount });
+                });
+
+                // 用户下线事件
+                socket.on('user_disconnected', (data) => {
+                    log(`用户下线: ${data.username} (${data.userId})`, 'warning');
+                    updateStats({ onlineCount: data.onlineCount });
+                });
+
+                // 消息事件
+                socket.on('message', (data) => {
+                    log(`收到消息: ${JSON.stringify(data)}`, 'success');
+                });
+
+                socket.on('joined', (data) => {
+                    log(`房间状态: ${JSON.stringify(data)}`, 'success');
+                });
+
+                socket.on('message_sent', (data) => {
+                    log(`消息发送成功: ${JSON.stringify(data)}`, 'success');
+                });
+
+                socket.on('events', (data) => {
+                    log(`收到事件: ${JSON.stringify(data)}`, 'success');
+                });
+
+                // 在线用户事件
+                socket.on('online_users', (data) => {
+                    log(`在线用户: ${data.total} 人`, 'info');
+                    updateOnlineUsers(data.users);
+                });
+
+                // 心跳响应
+                socket.on('pong', (data) => {
+                    log(`心跳响应: ${JSON.stringify(data)}`, 'info');
+                });
+
+                // 用户信息
+                socket.on('user_info', (data) => {
+                    log(`用户信息: ${JSON.stringify(data)}`, 'info');
+                });
+
+                // 在线用户数量
+                socket.on('online_count', (data) => {
+                    log(`在线用户数: ${data.count}`, 'info');
+                    updateStats({ onlineCount: data.count });
+                });
+
+                // 连接日志
+                socket.on('connection_logs', (data) => {
+                    log(`连接日志: ${data.total} 条`, 'info');
+                    updateConnectionLogs(data.logs);
+                });
+
+                // 用户连接历史
+                socket.on('user_connection_history', (data) => {
+                    log(`用户连接历史: ${data.total} 条`, 'info');
+                    updateConnectionLogs(data.logs);
+                });
+
+                // 连接统计
+                socket.on('connection_stats', (data) => {
+                    log(`连接统计: ${JSON.stringify(data)}`, 'info');
+                    updateStats(data);
+                });
+
+            } catch (error) {
+                log(`连接失败: ${error.message}`, 'error');
+            }
+        }
+
+        function disconnect() {
+            if (socket) {
+                socket.disconnect();
+                socket = null;
+                updateConnectionStatus('已断开连接', 'error');
+            }
+        }
+
+        function sendMessage() {
+            if (!socket || !socket.connected) {
+                alert('请先连接WebSocket');
+                return;
+            }
+
+            const message = document.getElementById('messageInput').value.trim();
+            if (!message) {
+                alert('请输入消息内容');
+                return;
+            }
+
+            socket.emit('message', { message: message }, (response) => {
+                log(`消息响应: ${JSON.stringify(response)}`, 'success');
+            });
+        }
+
+        function joinRoom() {
+            if (!socket || !socket.connected) {
+                alert('请先连接WebSocket');
+                return;
+            }
+
+            socket.emit('join', {}, (response) => {
+                log(`加入房间响应: ${JSON.stringify(response)}`, 'success');
+            });
+        }
+
+        function sendEvent() {
+            if (!socket || !socket.connected) {
+                alert('请先连接WebSocket');
+                return;
+            }
+
+            socket.emit('events', { data: 'test event' }, (response) => {
+                log(`事件响应: ${JSON.stringify(response)}`, 'success');
+            });
+        }
+
+        function sendPing() {
+            if (!socket || !socket.connected) {
+                alert('请先连接WebSocket');
+                return;
+            }
+
+            socket.emit('ping', {}, (response) => {
+                log(`心跳响应: ${JSON.stringify(response)}`, 'info');
+            });
+        }
+
+        function getOnlineUsers() {
+            if (!socket || !socket.connected) {
+                alert('请先连接WebSocket');
+                return;
+            }
+
+            socket.emit('get_online_users', {}, (response) => {
+                log(`获取在线用户响应: ${JSON.stringify(response)}`, 'info');
+            });
+        }
+
+        function getConnectionStats() {
+            if (!socket || !socket.connected) {
+                alert('请先连接WebSocket');
+                return;
+            }
+
+            socket.emit('get_connection_stats', {}, (response) => {
+                log(`获取统计信息响应: ${JSON.stringify(response)}`, 'info');
+            });
+        }
+
+        function getConnectionLogs() {
+            if (!socket || !socket.connected) {
+                alert('请先连接WebSocket');
+                return;
+            }
+
+            socket.emit('get_connection_logs', { limit: 20 }, (response) => {
+                log(`获取连接日志响应: ${JSON.stringify(response)}`, 'info');
+            });
+        }
+
+        function getUserConnectionHistory() {
+            if (!socket || !socket.connected) {
+                alert('请先连接WebSocket');
+                return;
+            }
+
+            socket.emit('get_user_connection_history', { limit: 10 }, (response) => {
+                log(`获取用户连接历史响应: ${JSON.stringify(response)}`, 'info');
+            });
+        }
+
+        // 页面加载时的提示
+        log('页面加载完成，请输入JWT Token并点击连接按钮');
+    </script>
+</body>
+</html>

@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebSocket 连接测试</title>
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .container {
+            border: 1px solid #ddd;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+        .message {
+            background-color: #f0f0f0;
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 3px;
+        }
+        .error {
+            background-color: #ffebee;
+            color: #c62828;
+        }
+        .success {
+            background-color: #e8f5e8;
+            color: #2e7d32;
+        }
+        .info {
+            background-color: #e3f2fd;
+            color: #1565c0;
+        }
+        input, button {
+            margin: 5px;
+            padding: 8px;
+        }
+        button {
+            background-color: #2196f3;
+            color: white;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #1976d2;
+        }
+        #log {
+            max-height: 400px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            padding: 10px;
+            background: #f9f9f9;
+        }
+    </style>
+</head>
+<body>
+    <h1>WebSocket 连接测试</h1>
+    
+    <div class="container">
+        <h3>连接设置</h3>
+        <input type="text" id="tokenInput" placeholder="输入JWT Token" style="width: 400px;">
+        <button onclick="connect()">连接</button>
+        <button onclick="disconnect()">断开连接</button>
+        <div id="status" class="message">未连接</div>
+    </div>
+
+    <div class="container">
+        <h3>测试功能</h3>
+        <button onclick="sendPing()">发送心跳</button>
+        <button onclick="getUserInfo()">获取用户信息</button>
+        <button onclick="getOnlineUsers()">获取在线用户</button>
+        <button onclick="sendMessage()">发送消息</button>
+    </div>
+
+    <div class="container">
+        <h3>日志</h3>
+        <div id="log"></div>
+    </div>
+
+    <script>
+        let socket = null;
+
+        function log(message, type = 'info') {
+            const logDiv = document.getElementById('log');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${type}`;
+            messageDiv.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+            logDiv.appendChild(messageDiv);
+            logDiv.scrollTop = logDiv.scrollHeight;
+        }
+
+        function updateStatus(status, type = 'info') {
+            const statusDiv = document.getElementById('status');
+            statusDiv.textContent = status;
+            statusDiv.className = `message ${type}`;
+        }
+
+        function connect() {
+            const token = document.getElementById('tokenInput').value.trim();
+            if (!token) {
+                alert('请输入JWT Token');
+                return;
+            }
+
+            try {
+                // 断开现有连接
+                if (socket) {
+                    socket.disconnect();
+                }
+
+                log('正在连接...', 'info');
+
+                // 创建新连接
+                socket = io('http://localhost:3000/admin', {
+                    auth: {
+                        token: token
+                    },
+                });
+
+                socket.on('connect', () => {
+                    log('Socket连接成功', 'success');
+                    updateStatus('Socket已连接', 'success');
+                });
+
+                socket.on('disconnect', () => {
+                    log('Socket连接断开', 'error');
+                    updateStatus('Socket已断开', 'error');
+                });
+
+                socket.on('connect_error', (error) => {
+                    log(`连接错误: ${error.message}`, 'error');
+                    updateStatus('连接失败', 'error');
+                });
+
+                // 连接成功事件
+                socket.on('connection_success', (data) => {
+                    log(`✅ 连接成功: ${JSON.stringify(data)}`, 'success');
+                    updateStatus('认证成功，已连接', 'success');
+                });
+
+                // 用户上线事件
+                socket.on('user_connected', (data) => {
+                    log(`👤 用户上线: ${data.username} (${data.userId})`, 'info');
+                });
+
+                // 用户下线事件
+                socket.on('user_disconnected', (data) => {
+                    log(`👋 用户下线: ${data.username} (${data.userId})`, 'info');
+                });
+
+                // 心跳响应
+                socket.on('pong', (data) => {
+                    log(`💓 心跳响应: ${JSON.stringify(data)}`, 'info');
+                });
+
+                // 用户信息
+                socket.on('user_info', (data) => {
+                    log(`👤 用户信息: ${JSON.stringify(data)}`, 'info');
+                });
+
+                // 在线用户
+                socket.on('online_users', (data) => {
+                    log(`👥 在线用户: ${data.total} 人`, 'info');
+                });
+
+                // 消息
+                socket.on('message', (data) => {
+                    log(`📨 收到消息: ${JSON.stringify(data)}`, 'success');
+                });
+
+                socket.on('message_sent', (data) => {
+                    log(`✅ 消息发送成功: ${JSON.stringify(data)}`, 'success');
+                });
+
+            } catch (error) {
+                log(`连接失败: ${error.message}`, 'error');
+            }
+        }
+
+        function disconnect() {
+            if (socket) {
+                socket.disconnect();
+                socket = null;
+                updateStatus('已断开连接', 'error');
+            }
+        }
+
+        function sendPing() {
+            if (!socket || !socket.connected) {
+                alert('请先连接WebSocket');
+                return;
+            }
+
+            log('发送心跳...', 'info');
+            socket.emit('ping', {}, (response) => {
+                log(`心跳响应: ${JSON.stringify(response)}`, 'info');
+            });
+        }
+
+        function getUserInfo() {
+            if (!socket || !socket.connected) {
+                alert('请先连接WebSocket');
+                return;
+            }
+
+            log('获取用户信息...', 'info');
+            socket.emit('get_user_info', {}, (response) => {
+                log(`用户信息响应: ${JSON.stringify(response)}`, 'info');
+            });
+        }
+
+        function getOnlineUsers() {
+            if (!socket || !socket.connected) {
+                alert('请先连接WebSocket');
+                return;
+            }
+
+            log('获取在线用户...', 'info');
+            socket.emit('get_online_users', {}, (response) => {
+                log(`在线用户响应: ${JSON.stringify(response)}`, 'info');
+            });
+        }
+
+        function sendMessage() {
+            if (!socket || !socket.connected) {
+                alert('请先连接WebSocket');
+                return;
+            }
+
+            const message = prompt('请输入消息内容:');
+            if (message) {
+                log(`发送消息: ${message}`, 'info');
+                socket.emit('message', { message: message }, (response) => {
+                    log(`消息响应: ${JSON.stringify(response)}`, 'success');
+                });
+            }
+        }
+
+        // 页面加载时的提示
+        log('页面加载完成，请输入JWT Token并点击连接按钮');
+        log('提示：可以通过登录接口获取JWT Token');
+    </script>
+</body>
+</html>

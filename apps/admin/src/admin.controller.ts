@@ -1,15 +1,16 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get, Param, Post } from '@nestjs/common';
 import { AdminService } from './admin.service';
-import {  ApiTags } from '@nestjs/swagger';
+import { ApiOperation, ApiParam, ApiTags } from '@nestjs/swagger';
 import { Public } from './auth/guards/auth.guard';
 import { Throttle } from '@nestjs/throttler';
 import { Idempotence } from '@app/common/decorators/idempotence.decorator';
+import { QueueService } from '@app/common/queue/queue.service';
 
 @ApiTags('首页')
 @Public()
 @Controller()
 export class AdminController {
-  constructor(private readonly adminService: AdminService) {}
+  constructor(private readonly adminService: AdminService, private readonly queueService: QueueService) { }
 
   @Throttle({ default: { limit: 1, ttl: 1000 } })
   @Idempotence({
@@ -18,5 +19,13 @@ export class AdminController {
   @Get()
   getHello(): string {
     return this.adminService.getHello();
+  }
+
+
+  @Post('cancelOrder/:id')
+  @ApiOperation({ summary: '创建取消订单队列' })
+  @ApiParam({ name: 'id', description: '订单id' })
+  async add(@Param('id') id: string) {
+    return await this.queueService.createCancelOrdeQueue(id);
   }
 }

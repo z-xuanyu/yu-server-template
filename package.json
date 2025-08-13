@@ -12,7 +12,7 @@
     "build:admin": "nest build admin",
     "build:web": "nest build web",
     "format": "prettier --write \"apps/**/*.ts\" \"libs/**/*.ts\"",
-    "start": "nest start",
+    "dev": "nest start --watch",
     "dev:admin": "nest start admin --watch",
     "dev:web": "nest start web --watch",
     "start:debug": "nest start --debug --watch",
@@ -24,8 +24,9 @@
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./apps/fullstack-nest/test/jest-e2e.json",
-    "db:prod": "npx prisma migrate deploy",
-    "db:dev": "npx prisma migrate dev"
+    "db:prod": "prisma migrate deploy",
+    "db:dev": "prisma migrate dev",
+    "db:gen": "prisma migrate generate"
   },
   "dependencies": {
     "@fastify/cookie": "^11.0.2",
@@ -34,6 +35,7 @@
     "@keyv/redis": "^4.4.0",
     "@liaoliaots/nestjs-redis": "^10.0.0",
     "@nestjs-modules/mailer": "^2.0.2",
+    "@nestjs/bullmq": "^11.0.3",
     "@nestjs/cache-manager": "^3.0.1",
     "@nestjs/common": "^11.1.2",
     "@nestjs/config": "^4.0.2",
@@ -52,6 +54,7 @@
     "@socket.io/redis-emitter": "^5.1.0",
     "axios": "^1.9.0",
     "bcryptjs": "^3.0.2",
+    "bullmq": "^5.57.0",
     "cache-manager": "^7.0.0",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.2",
@@ -62,6 +65,7 @@
     "nest-winston": "^1.10.2",
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.8.2",
+    "socket.io": "^4.8.1",
     "swagger-ui-express": "^5.0.1",
     "winston": "^3.17.0",
     "winston-daily-rotate-file": "^5.0.0"
@@ -97,6 +101,7 @@
     "wrap-ansi": "7.0.0",
     "string-width": "4.1.0"
   },
+  "packageManager": "yarn@1.22.22",
   "jest": {
     "moduleFileExtensions": [
       "js",

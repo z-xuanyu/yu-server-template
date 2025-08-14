@@ -6,7 +6,12 @@
     "deleteOutDir": true,
     "webpack": true,
     "tsConfigPath": "apps/admin/tsconfig.app.json",
-    "assets": [ { "include": "mailer/templates/**/*", "watchAssets": true} ]
+    "assets": [
+      {
+        "include": "mailer/templates/**/*",
+        "watchAssets": true
+      }
+    ]
   },
   "generateOptions": {
     "spec": false
@@ -48,6 +53,15 @@
       "sourceRoot": "libs/db/src",
       "compilerOptions": {
         "tsConfigPath": "libs/db/tsconfig.lib.json"
+      }
+    },
+    "shared": {
+      "type": "library",
+      "root": "libs/shared",
+      "entryFile": "index",
+      "sourceRoot": "libs/shared/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/shared/tsconfig.lib.json"
       }
     }
   }

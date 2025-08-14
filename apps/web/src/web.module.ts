@@ -6,11 +6,11 @@ import { AuthModule } from './auth/auth.module';
 import { CommonModule } from '@app/common';
 import { APP_GUARD } from '@nestjs/core';
 import { AuthGuard } from './auth/auth.guard';
-import { LoggerModule } from './logger/logger.module';
+import { LoggerModule } from '@app/shared';
 
 @Module({
   imports: [
-    LoggerModule,
+    LoggerModule.register({ path: 'logs/web' }),
     CommonModule,
     AuthModule,
     UserModule

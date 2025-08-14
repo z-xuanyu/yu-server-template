@@ -11,16 +11,17 @@ import { MenuModule } from './menu/menu.module';
 import { DeptModule } from './dept/dept.module';
 import { DictModule } from './dict/dict.module';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
-import { LoggerModule } from './logger/logger.module';
 import { MailerModule } from './mailer/mailer.module';
 import { PermissionsGuard } from './auth/guards/permissions.guard';
 import { AuthService } from './auth/auth.service';
 import { SocketModule } from './socket/socket.module';
 import { SseModule } from './sse/sse.module';
+import { QueueModule } from '@app/shared/queue/queue.module';
+import { LoggerModule } from '@app/shared';
 
 @Module({
   imports: [
-    LoggerModule,
+    LoggerModule.register({ path: 'logs/admin'}),
     ThrottlerModule.forRoot({
       throttlers: [
         {
@@ -30,6 +31,7 @@ import { SseModule } from './sse/sse.module';
       ],
     }),
     CommonModule,
+    QueueModule,
     MailerModule,
     AuthModule,
     SseModule,

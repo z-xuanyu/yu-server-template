@@ -4,7 +4,6 @@ import { DbModule } from '@app/db';
 import { ConfigModule } from '@nestjs/config';
 import { RedisModule } from './redis/redis.module';
 import config from './config';
-import { QueueModule } from './queue/queue.module';
 
 @Global()
 @Module({
@@ -16,7 +15,6 @@ import { QueueModule } from './queue/queue.module';
     }),
     DbModule,
     RedisModule,
-    QueueModule
   ],
   providers: [CommonService],
   exports: [CommonService, RedisModule],

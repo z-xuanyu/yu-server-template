@@ -4,7 +4,8 @@ import { ApiOperation, ApiParam, ApiTags } from '@nestjs/swagger';
 import { Public } from './auth/guards/auth.guard';
 import { Throttle } from '@nestjs/throttler';
 import { Idempotence } from '@app/common/decorators/idempotence.decorator';
-import { QueueService } from '@app/common/queue/queue.service';
+import { QueueService } from '@app/shared/queue/queue.service';
+import * as spawn from 'cross-spawn'
 
 @ApiTags('首页')
 @Public()
@@ -18,6 +19,20 @@ export class AdminController {
   })
   @Get()
   getHello(): string {
+    const path = process.cwd();
+    const child = spawn('node', ['-v'], { cwd: path });
+    child.stdout.on('data', (data) => {
+      console.log(`stdout: ${data}`);
+    });
+
+    child.stderr.on('data', (data) => {
+      console.error(`stderr: ${data}`);
+    });
+
+    child.on('close', (code) => {
+      console.log(`child process exited with code ${code})
+        `);
+    });
     return this.adminService.getHello();
   }
 
